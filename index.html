@@ -29,15 +29,15 @@
       <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
         <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
           <p class="font-semibold text-white">🔒 Mandatory Fullscreen & Tab Lock</p>
-          <p class="text-slate-400">Your browser will enter fullscreen mode. Switching tabs, minimizing windows, or pressing <kbd class="px-1 py-0.5 bg-slate-800 rounded">ESC</kbd> will instantly trigger a <strong>violation strike</strong>.</p>
+          <p class="text-slate-400">Your browser will enter fullscreen mode. Switching tabs, minimizing windows, or pressing <kbd class="px-1 py-0.5 bg-slate-800 rounded">ESC</kbd> will trigger a <strong>violation strike</strong>.</p>
         </div>
         <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
-          <p class="font-semibold text-white">📸 SCREENSHOT FIRST BEFORE LEAVING</p>
-          <p class="text-slate-400">Ensure you take your screenshot proof before exiting or ending your proctor session. You can upload it directly from your dashboard once back.</p>
+          <p class="font-semibold text-white">⚠️ Single Portal Grace Rule</p>
+          <p class="text-slate-400">You are allowed to navigate to your training platform link <strong>once</strong> without penalty. Leaving and returning multiple times will be logged as violation strikes.</p>
         </div>
         <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
-          <p class="font-semibold text-white">🔄 Multi-Attempt Tracking</p>
-          <p class="text-slate-400">Every time you launch proctor mode, it logs a new attempt. You can incrementally build up your progress percentage across multiple attempts.</p>
+          <p class="font-semibold text-white">📸 SUBMIT PROGRESS & SCREENSHOT UPON EXIT</p>
+          <p class="text-slate-400">When you end your proctor session, you will be prompted right away to submit your progress percentage and screenshot proof.</p>
         </div>
       </div>
 
@@ -82,7 +82,7 @@
 
     <!-- Violation Banner -->
     <div id="violation-alert" class="hidden max-w-6xl w-full mx-auto mt-3 p-3 rounded-lg bg-red-500/20 border border-red-500 text-red-300 text-xs font-semibold text-center">
-      WARNING: Tab switch or fullscreen exit detected! This violation has been logged to your professor's dashboard.
+      WARNING: Unauthorized tab switch or repeated exit detected! This has been logged to your professor's dashboard.
     </div>
 
     <!-- Center Workspace with Rules Sidebar -->
@@ -96,15 +96,14 @@
           </div>
           <h3 class="text-lg font-bold text-white">Proctor Rules & Guidelines</h3>
           <ul class="text-xs text-slate-300 space-y-2 list-disc pl-4 leading-relaxed">
-            <li><strong>Do not change tabs</strong> or minimize windows (triggers violation strikes).</li>
+            <li><strong>Single Portal Grace:</strong> You may click your portal link once safely. Leaving and returning subsequent times triggers violations.</li>
             <li><strong>Stay in fullscreen</strong> mode throughout your session.</li>
-            <li><strong>Take your screenshot</strong> of your attempt progress before leaving or ending the session.</li>
-            <li>Use the portal button on the right to access your training platform safely without penalties.</li>
+            <li><strong>Submit your progress & screenshot</strong> immediately when you end your session.</li>
           </ul>
         </div>
 
         <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400">
-          Authorized portal navigation is fully exempted from violation triggers.
+          First portal navigation is exempt. Subsequent switches are penalized.
         </div>
       </div>
 
@@ -116,11 +115,11 @@
         <div class="space-y-2 max-w-md">
           <h3 id="proctor-portal-heading" class="text-xl font-bold text-white">Launch Certificate Portal</h3>
           <p class="text-xs text-slate-400">
-            Click below to open your training or exam platform in a new tab while your proctor timer runs safely here.
+            Click below to open your training or exam platform in a new tab (1st click is safely exempted).
           </p>
         </div>
         <div class="flex flex-wrap items-center justify-center gap-4">
-          <a id="proctor-launch-btn" href="#" target="_blank" onclick="exemptPortalClick()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">
+          <a id="proctor-launch-btn" href="#" target="_blank" onclick="handlePortalClick()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">
             Open Certification Portal ↗
           </a>
         </div>
@@ -130,7 +129,7 @@
     <!-- Bottom Controls -->
     <div class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-end gap-4 border-t border-slate-800 pt-4">
       <button onclick="endProctorSession()" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition shadow-lg shadow-red-600/20">
-        End Proctor Session & Return to Dashboard
+        End Proctor Session & Submit Progress 📸
       </button>
     </div>
   </div>
@@ -345,10 +344,10 @@
 
     let pendingCertData = null;
     let activeProctorCertId = null;
-    let proctorViolations = -1; // Starts at -1 offset so initial load resolves to 0
+    let proctorViolations = -1; 
     let proctorSeconds = 0;
     let proctorTimerInterval = null;
-    let ignoreViolationsUntil = 0;
+    let portalClickCount = 0; // Tracks how many times they opened the portal link
 
     window.addEventListener('DOMContentLoaded', async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
@@ -379,6 +378,7 @@
       activeProctorCertId = certId;
       proctorViolations = existingViolations !== null && existingViolations !== undefined ? existingViolations : -1;
       proctorSeconds = 0;
+      portalClickCount = 0; // Reset grace count for this attempt
 
       document.getElementById('proctor-cert-title').textContent = `${certTitle} (Attempt #${(currentAttempts || 0) + 1})`;
       document.getElementById('proctor-violations-count').textContent = Math.max(0, proctorViolations);
@@ -421,9 +421,9 @@
       }, 1000);
     }
 
-    function exemptPortalClick() {
-      // Ignore any focus loss / visibility changes for the next 3 seconds when opening the authorized portal link
-      ignoreViolationsUntil = Date.now() + 3000;
+    function handlePortalClick() {
+      portalClickCount++;
+      // If it's their first time clicking the portal link during this session, ignore the upcoming focus loss
     }
 
     async function endProctorSession() {
@@ -438,6 +438,23 @@
         await document.exitFullscreen().catch(() => {});
       }
 
+      // Prompt for progress & screenshot immediately upon ending proctor session
+      const newPercent = prompt('Enter your current progress percentage for this attempt (0-100):', '100');
+      if (newPercent === null) {
+        await loadStudentCerts();
+        return;
+      }
+
+      const screenshotUrl = prompt('📸 SCREENSHOT REQUIRED: Paste your attempt proof screenshot URL (Google Drive, Imgur, etc.):');
+      if (!screenshotUrl) {
+        alert('Screenshot proof is required to log this attempt!');
+        await loadStudentCerts();
+        return;
+      }
+
+      const clampedPercent = Math.max(0, Math.min(100, parseInt(newPercent, 10) || 0));
+      const newStatus = clampedPercent === 100 ? 'pending_approval' : 'in_progress';
+
       const { data: currentCert } = await supabaseClient
         .from('certifications')
         .select('attempts')
@@ -450,11 +467,14 @@
         .from('certifications')
         .update({ 
           is_proctored_live: false,
-          attempts: newAttemptsCount
+          progress_percent: clampedPercent,
+          proof_url: screenshotUrl.trim(),
+          attempts: newAttemptsCount,
+          status: newStatus
         })
         .eq('id', certIdToClose);
 
-      alert(`Proctor session ended. Attempt #${newAttemptsCount} recorded. Please remember to update your progress percentage and submit your screenshot proof on your dashboard!`);
+      alert(`Proctor session ended! Attempt #${newAttemptsCount} recorded with progress and screenshot proof.`);
       await loadStudentCerts();
     }
 
@@ -502,8 +522,9 @@
     async function recordProctorViolation() {
       if (!activeProctorCertId) return;
       
-      // If within the exemption time window after clicking the portal link, skip counting
-      if (Date.now() < ignoreViolationsUntil) {
+      // If they clicked the portal link only once, allow 1 safe navigation grace period
+      if (portalClickCount === 1) {
+        portalClickCount = 0; // consume the grace pass
         return;
       }
 
