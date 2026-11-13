@@ -196,4 +196,764 @@
         <!-- Sign Up Form -->
         <form id="signup-form" onsubmit="handleSignup(event)" class="hidden space-y-4">
           <div>
-            <label class="block text
+            <label class="block text-xs font-medium text-slate-400 mb-1">Full Name</label>
+            <input type="text" id="signup-name" required placeholder="Juan Dela Cruz"
+              class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Student Number</label>
+            <input type="text" id="signup-student-no" required placeholder="2023-00123-MN-0"
+              class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
+            <input type="email" id="signup-email" required placeholder="student@iskolarngbayan.pup.edu.ph"
+              class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Password (min. 6 characters)</label>
+            <input type="password" id="signup-password" required minlength="6" placeholder="••••••••"
+              class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
+          </div>
+          <button type="submit" id="signup-btn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-sm transition">
+            Create Student Account
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- STUDENT DASHBOARD VIEW -->
+    <section id="student-dashboard" class="hidden space-y-6">
+      <!-- Stats Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <p class="text-xs text-slate-400 uppercase font-semibold">Total Tracked</p>
+          <p id="stat-total" class="text-3xl font-bold text-white mt-1">0</p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <p class="text-xs text-slate-400 uppercase font-semibold">In Progress / Pending</p>
+          <p id="stat-progress" class="text-3xl font-bold text-amber-400 mt-1">0</p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <p class="text-xs text-slate-400 uppercase font-semibold">Verified Completed</p>
+          <p id="stat-verified" class="text-3xl font-bold text-emerald-400 mt-1">0</p>
+        </div>
+      </div>
+
+      <!-- Add Certification & My Certifications -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Add Form -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 h-fit">
+          <h2 class="text-base font-bold text-white mb-1">Track New Certification</h2>
+          <p class="text-xs text-slate-400 mb-4">Log an ongoing course or completed certificate.</p>
+          
+          <form onsubmit="handleAddCert(event)" class="space-y-3.5">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Certification Title</label>
+              <input type="text" id="cert-title" required placeholder="e.g., AWS Cloud Practitioner"
+                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Issuing Platform / Org</label>
+              <input type="text" id="cert-issuer" required placeholder="e.g., AWS, Coursera, Cisco, Udemy"
+                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Initial Progress (%)</label>
+                <input type="number" id="cert-percent" min="0" max="100" value="0" required
+                  class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Target Date</label>
+                <input type="date" id="cert-date"
+                  class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Course / Exam Portal Link</label>
+              <input type="url" id="cert-proof" placeholder="https://aws.amazon.com/certification/..."
+                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
+            </div>
+            <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-sm transition">
+              + Add to Tracker
+            </button>
+          </form>
+        </div>
+
+        <!-- List of Student Certifications -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-white">My Certification Roadmap</h2>
+            <button onclick="loadStudentCerts()" class="text-xs text-emerald-400 hover:underline">Refresh</button>
+          </div>
+          <div id="student-cert-list" class="space-y-3">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN / PROFESSOR MONITOR VIEW -->
+    <section id="admin-dashboard" class="hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 rounded-xl p-5">
+        <div>
+          <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded">
+            Professor / Admin Monitor
+          </span>
+          <h2 class="text-lg font-bold text-white mt-1">Class Certification & Live Proctor Overview</h2>
+          <p class="text-xs text-slate-400">Monitor attempts, live proctor status, tab violations, screenshot proofs, and private student concerns.</p>
+        </div>
+        <button onclick="loadAdminData()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700">
+          Refresh Records
+        </button>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-800 text-[11px] uppercase text-slate-400 bg-slate-950/50">
+              <th class="py-3.5 px-4">Student</th>
+              <th class="py-3.5 px-4">Certification & Issuer</th>
+              <th class="py-3.5 px-4">Attempts & Live Status</th>
+              <th class="py-3.5 px-4">Progress & Strikes</th>
+              <th class="py-3.5 px-4">Screenshot Proof</th>
+              <th class="py-3.5 px-4">Status</th>
+              <th class="py-3.5 px-4 text-right">Admin Action</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body" class="divide-y divide-slate-800 text-sm">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ==========================================
+    // SUPABASE CONFIGURATION (PRE-WIRED)
+    // ==========================================
+    const SUPABASE_URL = 'https://fskgxuhdxesoxpngjayc.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_BaxD29EECzo2bSmx3hlIHA_6Qsda6cf';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentUser = null;
+    let currentProfile = null;
+
+    let pendingCertData = null;
+    let activeProctorCertId = null;
+    let proctorViolations = -1; 
+    let proctorSeconds = 0;
+    let proctorTimerInterval = null;
+    let portalClickCount = 0;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        currentUser = session.user;
+        await loadUserProfile();
+      }
+    });
+
+    // ==========================================
+    // PROCTOR WORKFLOW & INSTRUCTIONS MODAL
+    // ==========================================
+    function promptProctorSession(certId, certTitle, currentPercent, existingViolations, proofUrl, currentAttempts) {
+      pendingCertData = { certId, certTitle, currentPercent, existingViolations, proofUrl, currentAttempts };
+      document.getElementById('instruction-modal').classList.remove('hidden');
+    }
+
+    function closeInstructionModal() {
+      document.getElementById('instruction-modal').classList.add('hidden');
+      pendingCertData = null;
+    }
+
+    async function confirmAndLaunchProctor() {
+      if (!pendingCertData) return;
+      const { certId, certTitle, currentPercent, existingViolations, proofUrl, currentAttempts } = pendingCertData;
+      closeInstructionModal();
+
+      activeProctorCertId = certId;
+      proctorViolations = existingViolations !== null && existingViolations !== undefined ? existingViolations : -1;
+      proctorSeconds = 0;
+      portalClickCount = 0;
+
+      document.getElementById('proctor-cert-title').textContent = `${certTitle} (Attempt #${(currentAttempts || 0) + 1})`;
+      document.getElementById('proctor-violations-count').textContent = Math.max(0, proctorViolations);
+      document.getElementById('proctor-current-percent').textContent = `${currentPercent}\%`; document.getElementById('violation-alert').classList.add('hidden');  const launchBtn = document.getElementById('proctor-launch-btn'); const portalHeading = document.getElementById('proctor-portal-heading'); if (proofUrl && proofUrl.startsWith('http')) { launchBtn.href = proofUrl; launchBtn.textContent = `Open ${certTitle} Portal ↗`;
+        portalHeading.textContent = `Launch ${certTitle} Course / Exam`; } else { launchBtn.href = 'https://www.google.com/search?q=' + encodeURIComponent(certTitle + ' certification exam course'); launchBtn.textContent = `Search / Open ${certTitle} ↗`;
+        portalHeading.textContent = `Launch ${certTitle} Portal`; }  document.getElementById('proctor-overlay').classList.remove('hidden');  try { if (document.documentElement.requestFullscreen) { await document.documentElement.requestFullscreen(); } } catch (err) { console.warn('Fullscreen request blocked:', err); }  await supabaseClient .from('certifications') .update({ is_proctored_live: true }) .eq('id', certId);  proctorTimerInterval = setInterval(() => { proctorSeconds++; const hrs = String(Math.floor(proctorSeconds / 3600)).padStart(2, '0'); const mins = String(Math.floor((proctorSeconds \% 3600) / 60)).padStart(2, '0'); const secs = String(proctorSeconds \% 60).padStart(2, '0'); document.getElementById('proctor-timer').textContent = `${hrs}:${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function handlePortalClick() {
+      portalClickCount++;
+    }
+
+    async function endProctorSession() {
+      if (!activeProctorCertId) return;
+      const certIdToClose = activeProctorCertId;
+      activeProctorCertId = null;
+
+      clearInterval(proctorTimerInterval);
+      document.getElementById('proctor-overlay').classList.add('hidden');
+
+      if (document.fullscreenElement && document.exitFullscreen) {
+        await document.exitFullscreen().catch(() => {});
+      }
+
+      const newPercent = prompt('Enter your current progress percentage for this attempt (0-100):', '100');
+      if (newPercent === null) {
+        await loadStudentCerts();
+        return;
+      }
+
+      const clampedPercent = Math.max(0, Math.min(100, parseInt(newPercent, 10) || 0));
+      const newStatus = clampedPercent === 100 ? 'pending_approval' : 'in_progress';
+
+      const { data: currentCert } = await supabaseClient
+        .from('certifications')
+        .select('attempts')
+        .eq('id', certIdToClose)
+        .single();
+
+      const newAttemptsCount = (currentCert?.attempts || 0) + 1;
+
+      await supabaseClient
+        .from('certifications')
+        .update({ 
+          is_proctored_live: false,
+          progress_percent: clampedPercent,
+          attempts: newAttemptsCount,
+          status: newStatus
+        })
+        .eq('id', certIdToClose);
+
+      alert(`Proctor session ended! Attempt #${newAttemptsCount} recorded with${clampedPercent}% progress.`);
+      await loadStudentCerts();
+    }
+
+    async function submitScreenshot(certId) {
+      const screenshotUrl = prompt('📸 Paste your attempt screenshot proof URL (Google Drive, Imgur, etc.):');
+      if (!screenshotUrl) return;
+
+      const newPercent = prompt('Enter your current progress percentage (0-100):', '100');
+      if (newPercent === null) return;
+
+      const clampedPercent = Math.max(0, Math.min(100, parseInt(newPercent, 10) || 0));
+      const newStatus = clampedPercent === 100 ? 'pending_approval' : 'in_progress';
+
+      const { error } = await supabaseClient
+        .from('certifications')
+        .update({ 
+          proof_url: screenshotUrl.trim(),
+          progress_percent: clampedPercent,
+          status: newStatus
+        })
+        .eq('id', certId);
+
+      if (error) alert(error.message);
+      else {
+        alert('Screenshot proof and progress submitted successfully!');
+        await loadStudentCerts();
+      }
+    }
+
+    async function deleteCertification(certId) {
+      if (!confirm('Are you sure you want to delete this certification?')) return;
+
+      const { error } = await supabaseClient
+        .from('certifications')
+        .delete()
+        .eq('id', certId);
+
+      if (error) {
+        alert('Error deleting: ' + error.message);
+      } else {
+        if (currentProfile?.role === 'admin') await loadAdminData();
+        else await loadStudentCerts();
+      }
+    }
+
+    async function recordProctorViolation() {
+      if (!activeProctorCertId) return;
+      
+      if (portalClickCount === 1) {
+        portalClickCount = 0; 
+        return;
+      }
+
+      proctorViolations++;
+      const displayStrikes = Math.max(0, proctorViolations);
+      document.getElementById('proctor-violations-count').textContent = displayStrikes;
+      document.getElementById('violation-alert').classList.remove('hidden');
+
+      const box = document.getElementById('proctor-status-box');
+      box.classList.add('border-red-500', 'bg-red-950/30');
+      setTimeout(() => box.classList.remove('border-red-500', 'bg-red-950/30'), 1500);
+
+      await supabaseClient
+        .from('certifications')
+        .update({ tab_violations: proctorViolations })
+        .eq('id', activeProctorCertId);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && activeProctorCertId) {
+        recordProctorViolation();
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && activeProctorCertId) {
+        recordProctorViolation();
+      }
+    });
+
+    document.addEventListener('contextmenu', (e) => {
+      if (activeProctorCertId) e.preventDefault();
+    });
+
+    // ==========================================
+    // PRIVATE COMMENTS / CHAT SYSTEM
+    // ==========================================
+    async function openChatModal(certId, certTitle) {
+      const modalHtml = `
+        <div id="chat-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl flex flex-col h-[500px]">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <h3 class="font-bold text-white text-base">Private Concerns & Chat</h3>
+                <p class="text-xs text-slate-400">${certTitle}</p>
+              </div>
+              <button onclick="closeChatModal()" class="text-slate-400 hover:text-white text-sm font-bold">✕</button>
+            </div>
+
+            <div id="chat-messages-container" class="flex-1 overflow-y-auto space-y-3 pr-2 text-xs">
+              <p class="text-center text-slate-500 py-4">Loading conversation...</p>
+            </div>
+
+            <form onsubmit="sendChatMessage(event, '${certId}')" class="flex gap-2 pt-2 border-t border-slate-800">
+              <input type="text" id="chat-input-msg" required placeholder="Type your concern or reply..." 
+                class="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs focus:outline-none focus:border-emerald-500 text-white" />
+              <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs transition">
+                Send
+              </button>
+            </form>
+          </div>
+        </div>
+      `;
+      const existing = document.getElementById('chat-modal');
+      if (existing) existing.remove();
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      await loadChatMessages(certId);
+    }
+
+    function closeChatModal() {
+      const modal = document.getElementById('chat-modal');
+      if (modal) modal.remove();
+      if (currentProfile?.role === 'admin') loadAdminData();
+    }
+
+    async function loadChatMessages(certId) {
+      const { data, error } = await supabaseClient
+        .from('cert_comments')
+        .select('*, profiles(full_name, role)')
+        .eq('cert_id', certId)
+        .order('created_at', { ascending: true });
+
+      const container = document.getElementById('chat-messages-container');
+      if (!container) return;
+
+      if (error || !data || data.length === 0) {
+        container.innerHTML = `<p class="text-center text-slate-500 py-8">No messages or concerns logged yet. Start the conversation below!</p>`;
+        return;
+      }
+
+      container.innerHTML = data.map(msg => {
+        const isMe = msg.sender_id === currentUser.id;
+        const isAdmin = msg.profiles?.role === 'admin';
+        return `
+          <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1">
+            <div class="flex items-center gap-2 text-[10px] text-slate-400">
+              <span class="font-semibold text-slate-300">${msg.profiles?.full_name || 'User'}</span>
+              ${isAdmin ? '<span class="px-1.5 py-0.2 bg-indigo-500/20 text-indigo-400 rounded">Admin</span>' : ''}
+              <span>${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+            <div class="p-3 rounded-xl max-w-[85%] text-xs ${isMe ? 'bg-indigo-600 text-white' : 'bg-slate-950 border border-slate-800 text-slate-200'}">
+              ${msg.message}
+            </div>
+          </div>
+        `;
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendChatMessage(e, certId) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input-msg');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const { error } = await supabaseClient.from('cert_comments').insert([{
+        cert_id: certId,
+        sender_id: currentUser.id,
+        message: text
+      }]);
+
+      if (error) {
+        alert('Failed to send message: ' + error.message);
+      } else {
+        input.value = '';
+        await loadChatMessages(certId);
+      }
+    }
+
+    // ==========================================
+    // AUTHENTICATION
+    // ==========================================
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      const tabLogin = document.getElementById('tab-login');
+      const tabSignup = document.getElementById('tab-signup');
+      document.getElementById('auth-error').classList.add('hidden');
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        tabLogin.className = 'flex-1 pb-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400';
+        tabSignup.className = 'flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200';
+      } else {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        tabSignup.className = 'flex-1 pb-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400';
+        tabLogin.className = 'flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200';
+      }
+    }
+
+    function showAuthError(msg) {
+      const el = document.getElementById('auth-error');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    async function handleSignup(e) {
+      e.preventDefault();
+      const btn = document.getElementById('signup-btn');
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+
+      const fullName = document.getElementById('signup-name').value.trim();
+      const studentNo = document.getElementById('signup-student-no').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+
+      if (error) {
+        showAuthError(error.message);
+        btn.disabled = false;
+        btn.textContent = 'Create Student Account';
+        return;
+      }
+
+      if (data.user) {
+        const { error: profileError } = await supabaseClient.from('profiles').insert([{
+          id: data.user.id,
+          full_name: fullName,
+          student_number: studentNo,
+          role: 'student'
+        }]);
+
+        if (profileError) {
+          showAuthError('Account created, but profile failed: ' + profileError.message);
+          btn.disabled = false;
+          return;
+        }
+
+        currentUser = data.user;
+        await loadUserProfile();
+      }
+      btn.disabled = false;
+      btn.textContent = 'Create Student Account';
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        showAuthError(error.message);
+        btn.disabled = false;
+        btn.textContent = 'Access Dashboard';
+        return;
+      }
+
+      currentUser = data.user;
+      await loadUserProfile();
+      btn.disabled = false;
+      btn.textContent = 'Access Dashboard';
+    }
+
+    async function handleLogout() {
+      await supabaseClient.auth.signOut();
+      currentUser = null;
+      currentProfile = null;
+      document.getElementById('nav-user-area').classList.add('hidden');
+      document.getElementById('student-dashboard').classList.add('hidden');
+      document.getElementById('admin-dashboard').classList.add('hidden');
+      document.getElementById('auth-section').classList.remove('hidden');
+    }
+
+    async function loadUserProfile() {
+      const { data, error } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (error || !data) {
+        showAuthError('Profile record not found. Please contact admin.');
+        return;
+      }
+
+      currentProfile = data;
+      document.getElementById('auth-section').classList.add('hidden');
+      document.getElementById('nav-user-area').classList.remove('hidden');
+      document.getElementById('nav-user-name').textContent = `${data.full_name} (${data.student_number || 'Admin'})`;
+      document.getElementById('nav-user-role').textContent = data.role;
+
+      if (data.role === 'admin') {
+        document.getElementById('student-dashboard').classList.add('hidden');
+        document.getElementById('admin-dashboard').classList.remove('hidden');
+        await loadAdminData();
+      } else {
+        document.getElementById('admin-dashboard').classList.add('hidden');
+        document.getElementById('student-dashboard').classList.remove('hidden');
+        await loadStudentCerts();
+      }
+    }
+
+    // ==========================================
+    // STUDENT ACTIONS
+    // ==========================================
+    async function handleAddCert(e) {
+      e.preventDefault();
+      const title = document.getElementById('cert-title').value.trim();
+      const issuer = document.getElementById('cert-issuer').value.trim();
+      const percent = parseInt(document.getElementById('cert-percent').value, 10);
+      const targetDate = document.getElementById('cert-date').value || null;
+      const proofUrl = document.getElementById('cert-proof').value.trim() || null;
+
+      const status = (percent === 100 && proofUrl) ? 'pending_approval' : 'in_progress';
+      const code = 'CERT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      const { error } = await supabaseClient.from('certifications').insert([{
+        student_id: currentUser.id,
+        cert_title: title,
+        issuer: issuer,
+        progress_percent: percent,
+        status: status,
+        target_date: targetDate,
+        proof_url: proofUrl,
+        verification_code: code,
+        attempts: 0,
+        tab_violations: -1
+      }]);
+
+      if (error) {
+        alert('Error adding certification: ' + error.message);
+        return;
+      }
+
+      e.target.reset();
+      await loadStudentCerts();
+    }
+
+    async function updateProgress(certId, newPercent) {
+      const clamped = Math.max(0, Math.min(100, parseInt(newPercent, 10) || 0));
+      const newStatus = clamped === 100 ? 'pending_approval' : 'in_progress';
+
+      const { error } = await supabaseClient
+        .from('certifications')
+        .update({ progress_percent: clamped, status: newStatus })
+        .eq('id', certId);
+
+      if (error) alert(error.message);
+      else await loadStudentCerts();
+    }
+
+    async function loadStudentCerts() {
+      const { data, error } = await supabaseClient
+        .from('certifications')
+        .select('*')
+        .eq('student_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+      if (error) return;
+
+      document.getElementById('stat-total').textContent = data.length;
+      document.getElementById('stat-verified').textContent = data.filter(c => c.status === 'verified').length;
+      document.getElementById('stat-progress').textContent = data.filter(c => c.status !== 'verified').length;
+
+      const container = document.getElementById('student-cert-list');
+      if (data.length === 0) {
+        container.innerHTML = `<div class="bg-slate-900/50 border border-dashed border-slate-800 rounded-xl p-8 text-center text-sm text-slate-400">No certifications tracked yet. Add your first certification on the left!</div>`;
+        return;
+      }
+
+      container.innerHTML = data.map(cert => {
+        const badgeColors = {
+          in_progress: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+          pending_approval: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+          verified: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+          rejected: 'bg-red-500/10 text-red-400 border-red-500/30'
+        };
+        const statusLabel = cert.status.replace('_', ' ').toUpperCase();
+        const safeTitle = cert.cert_title.replace(/'/g, "\\'");
+        const safeProof = cert.proof_url ? cert.proof_url.replace(/'/g, "\\'") : '';
+        const attempts = cert.attempts || 0;
+        const violations = Math.max(0, cert.tab_violations || 0);
+
+        return `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <h3 class="font-bold text-white text-base">${cert.cert_title}</h3>
+                <p class="text-xs text-slate-400">${cert.issuer}${cert.target_date ? `• Target: ${cert.target_date}` : ''}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                ${cert.status !== 'verified' ? `
+                  <button onclick="promptProctorSession('${cert.id}', '${safeTitle}', ${cert.progress_percent}, ${cert.tab_violations ?? -1}, '${safeProof}', ${attempts})"
+                    class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold rounded-lg transition shadow">
+                    Enable Proctor Mode (Attempt #${attempts + 1})
+                  </button>
+                ` : ''}
+                <span class="px-2.5 py-1 text-[10px] font-bold rounded-full border ${badgeColors[cert.status] || ''}">
+                  ${statusLabel}
+                </span>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-400">Completion Progress (Attempts: <strong>${attempts}</strong>)</span>
+                <span class="font-semibold text-emerald-400">${cert.progress_percent}%</span>
+              </div>
+              <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                <div class="h-full bg-emerald-500 transition-all duration-300" style="width: ${cert.progress_percent}%"></div>
+              </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                  <label class="text-slate-400">Update %:</label>
+                  <input type="number" min="0" max="100" value="${cert.progress_percent}" 
+                    onchange="updateProgress('${cert.id}', this.value)"
+                    class="w-16 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" />
+                </div>
+                <span class="text-slate-400">Strikes: <strong class="${violations > 0 ? 'text-red-400' : 'text-slate-300'}">${violations}</strong></span>
+              </div>
+
+              <div class="flex items-center gap-3 flex-wrap">
+                <button onclick="submitScreenshot('${cert.id}')" class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/30 rounded font-semibold transition">
+                  ${cert.proof_url ? 'Update Screenshot Proof ↗' : 'Submit Screenshot 📸'}
+                </button>
+                <button onclick="openChatModal('${cert.id}', '${safeTitle}')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded font-semibold transition">
+                  Concerns / Chat 💬
+                </button>
+                <button onclick="deleteCertification('${cert.id}')" class="px-2.5 py-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 rounded font-semibold transition">
+                  Delete 🗑️
+                </button>
+                <span class="text-slate-500 font-mono text-[11px]">ID: ${cert.verification_code || 'N/A'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==========================================
+    // ADMIN / PROFESSOR ACTIONS
+    // ==========================================
+    async function loadAdminData() {
+      const { data, error } = await supabaseClient
+        .from('certifications')
+        .select('*, profiles:student_id(full_name, student_number), cert_comments(sender_id, created_at, profiles(role))')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        alert('Error loading records: ' + error.message);
+        return;
+      }
+
+      const tbody = document.getElementById('admin-table-body');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">No student certifications logged yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(row => {
+        const violations = Math.max(0, row.tab_violations || 0);
+        const safeTitle = certTitleEscape(row.cert_title);
+        
+        const comments = row.cert_comments || [];
+        const hasUnreadStudentMessage = comments.some(c => c.profiles && c.profiles.role === 'student');
+
+        const studentName = row.profiles?.full_name || 'Unknown Student';
+        const studentNo = row.profiles?.student_number || '';
+
+        return `
+          <tr class="hover:bg-slate-800/40">
+            <td class="py-3.5 px-4">
+              <p class="font-semibold text-white">${studentName}</p>
+              <p class="text-xs text-slate-400">${studentNo}</p>
+            </td>
+            <td class="py-3.5 px-4">
+              <p class="font-medium text-slate-200">${row.cert_title}</p>
+              <p class="text-xs text-slate-400">${row.issuer}</p>
+            </td>
+            <td class="py-3.5 px-4 space-y-1">
+              <p class="text-xs font-semibold text-indigo-400">Attempts: ${row.attempts \vert{}\vert{} 0}</p>${row.is_proctored_live 
+                ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold">
+                     <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span> LIVE TAKING
+                   </span>`
+                : `<span class="text-xs text-slate-500">Offline</span>`
+              }
+            </td>
+            <td class="py-3.5 px-4 space-y-1">
+              <span class="font-bold text-emerald-400">${row.progress_percent}%</span>
+              <p class="text-xs text-slate-400">Strikes: <strong class="${violations > 0 ? 'text-red-400' : 'text-slate-300'}">${violations}</strong></p>
+            </td>
+            <td class="py-3.5 px-4">
+              ${row.proof_url 
+                ? `<a href="${row.proof_url}" target="_blank" class="text-xs text-blue-400 hover:underline font-medium">View Screenshot ↗</a>` 
+                : `<span class="text-xs text-slate-500">None</span>`}
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="text-xs font-semibold uppercase ${row.status === 'verified' ? 'text-emerald-400' : row.status === 'rejected' ? 'text-red-400' : 'text-amber-400'}">
+                ${row.status.replace('_', ' ')}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-right space-x-1.5">
+              <button onclick="openChatModal('${row.id}', '${safeTitle}')" class="relative px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded text-xs font-semibold">
+                Chat 💬
+                ${hasUnreadStudentMessage ? '<span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>' : ''}
+              </button>
+              <button onclick="adminVerify('${row.id}', 'verified')" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 rounded text-xs font-semibold">
+                Approve
+              </button>
+              <button onclick="adminVerify('${row.id}', 'rejected')" class="px-2.5 py
