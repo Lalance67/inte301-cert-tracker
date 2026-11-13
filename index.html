@@ -13,7 +13,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- FULLSCREEN PROCTOR OVERLAY WITH EXAM WORKSPACE -->
+  <!-- FULLSCREEN PROCTOR OVERLAY WITH DYNAMIC PORTAL ACCESS -->
   <div id="proctor-overlay" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col justify-between p-4 sm:p-6 select-none overflow-y-auto">
     <!-- Top Proctor Bar -->
     <div class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
@@ -53,79 +53,40 @@
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between space-y-4">
         <div class="space-y-3">
           <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
-            ✓ Focus & Tab Lock Enabled
+            ✓ Focus & Fullscreen Lock Enabled
           </div>
           <h3 class="text-lg font-bold text-white">Proctored Assessment Workspace</h3>
           <p class="text-xs text-slate-400 leading-relaxed">
-            Complete your certification assessment on the right while staying in Fullscreen Mode. Switching tabs, minimizing the browser, or pressing <kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200">ESC</kbd> immediately logs a violation strike.
+            You are actively monitored. Click the button on the right to launch your specific course or exam platform link in a new tab. Switching away from this window triggers a violation strike.
           </p>
         </div>
 
         <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-          <p class="text-xs font-semibold text-slate-300">Screenshot Requirement</p>
+          <p class="text-xs font-semibold text-slate-300">Submission Reminder</p>
           <p class="text-[11px] text-slate-400">
-            When you finish your session, you will be prompted to submit a screenshot link proving your active proctored session.
+            When finished, click the bottom exit button to update your progress and submit your proctor screenshot proof.
           </p>
         </div>
       </div>
 
-      <!-- Right Interactive Assessment Area -->
-      <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-            <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Proctored Certification Assessment</span>
-            <span class="text-xs text-slate-400">Passing Score: 100%</span>
-          </div>
-
-          <form id="proctor-exam-form" onsubmit="submitProctorExam(event)" class="space-y-5">
-            <div>
-              <p class="text-sm font-semibold text-white mb-2">1. Which security mechanism ensures data integrity and verifies the authenticity of a digital certificate?</p>
-              <div class="space-y-2 text-xs text-slate-300">
-                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
-                  <input type="radio" name="q1" value="correct" required class="accent-emerald-500">
-                  <span>Cryptographic Hashing & Digital Signatures (PKI)</span>
-                </label>
-                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
-                  <input type="radio" name="q1" value="wrong" class="accent-emerald-500">
-                  <span>Dynamic Host Configuration Protocol (DHCP)</span>
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <p class="text-sm font-semibold text-white mb-2">2. In cloud database security (such as Supabase PostgreSQL), what restricts row-level access per authenticated user?</p>
-              <div class="space-y-2 text-xs text-slate-300">
-                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
-                  <input type="radio" name="q2" value="wrong" required class="accent-emerald-500">
-                  <span>Cross-Origin Resource Sharing (CORS)</span>
-                </label>
-                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
-                  <input type="radio" name="q2" value="correct" class="accent-emerald-500">
-                  <span>Row Level Security (RLS) Policies</span>
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <p class="text-sm font-semibold text-white mb-2">3. What is the primary purpose of network segmentation using VLANs?</p>
-              <div class="space-y-2 text-xs text-slate-300">
-                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
-                  <input type="radio" name="q3" value="correct" required class="accent-emerald-500">
-                  <span>Isolate broadcast domains and improve security/performance</span>
-                </label>
-                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
-                  <input type="radio" name="q3" value="wrong" class="accent-emerald-500">
-                  <span>Increase physical cable length limits</span>
-                </label>
-              </div>
-            </div>
-
-            <div class="pt-2">
-              <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm transition">
-                Submit Proctored Assessment & Update Progress
-              </button>
-            </div>
-          </form>
+      <!-- Right Dynamic Portal Launcher Area -->
+      <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-6">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-3xl font-bold">
+          🔗
+        </div>
+        <div class="space-y-2 max-w-md">
+          <h3 id="proctor-portal-heading" class="text-xl font-bold text-white">Launch Certificate Portal</h3>
+          <p class="text-xs text-slate-400">
+            Click below to open your assigned training or exam platform in a new tab while your proctor session and timer stay active here.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-4">
+          <a id="proctor-launch-btn" href="#" target="_blank" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-500/20">
+            Open Certification Portal ↗
+          </a>
+          <a href="https://www.credly.com" target="_blank" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-sm transition border border-slate-700">
+            Open Credly ↗
+          </a>
         </div>
       </div>
     </div>
@@ -257,12 +218,12 @@
           <form onsubmit="handleAddCert(event)" class="space-y-3.5">
             <div>
               <label class="block text-xs font-medium text-slate-400 mb-1">Certification Title</label>
-              <input type="text" id="cert-title" required placeholder="e.g., Cisco CCNA / AWS Cloud"
+              <input type="text" id="cert-title" required placeholder="e.g., AWS Cloud Practitioner"
                 class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
             </div>
             <div>
               <label class="block text-xs font-medium text-slate-400 mb-1">Issuing Platform / Org</label>
-              <input type="text" id="cert-issuer" required placeholder="e.g., Cisco NetAcad, Coursera, Udemy"
+              <input type="text" id="cert-issuer" required placeholder="e.g., AWS, Coursera, Cisco, Udemy"
                 class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
             </div>
             <div class="grid grid-cols-2 gap-3">
@@ -278,8 +239,8 @@
               </div>
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">Proof / Certificate Link (Optional)</label>
-              <input type="url" id="cert-proof" placeholder="https://drive.google.com/... or Credly link"
+              <label class="block text-xs font-medium text-slate-400 mb-1">Course / Exam / Proof Link</label>
+              <input type="url" id="cert-proof" placeholder="https://aws.amazon.com/certification/..."
                 class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
             </div>
             <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-sm transition">
@@ -366,16 +327,29 @@
     // ==========================================
     // PROCTOR MODE ENGINE (TAB & FULLSCREEN LOCK)
     // ==========================================
-    async function startProctorSession(certId, certTitle, currentPercent, existingViolations) {
+    async function startProctorSession(certId, certTitle, currentPercent, existingViolations, proofUrl) {
       activeProctorCertId = certId;
       proctorViolations = existingViolations || 0;
       proctorSeconds = 0;
 
-      document.getElementById('proctor-exam-form').reset();
       document.getElementById('proctor-cert-title').textContent = certTitle;
       document.getElementById('proctor-violations-count').textContent = proctorViolations;
       document.getElementById('proctor-current-percent').textContent = `${currentPercent}%`;
       document.getElementById('violation-alert').classList.add('hidden');
+
+      // Set dynamic portal link if available, otherwise default to Google search / NetAcad
+      const launchBtn = document.getElementById('proctor-launch-btn');
+      const portalHeading = document.getElementById('proctor-portal-heading');
+      if (proofUrl && proofUrl.startsWith('http')) {
+        launchBtn.href = proofUrl;
+        launchBtn.textContent = `Open ${certTitle} Portal ↗`;
+        portalHeading.textContent = `Launch ${certTitle} Course / Exam`;
+      } else {
+        launchBtn.href = 'https://www.google.com/search?q=' + encodeURIComponent(certTitle + ' certification exam course');
+        launchBtn.textContent = `Search / Open ${certTitle} ↗`;
+        portalHeading.textContent = `Launch ${certTitle} Portal`;
+      }
+
       document.getElementById('proctor-overlay').classList.remove('hidden');
 
       try {
@@ -400,32 +374,16 @@
       }, 1000);
     }
 
-    async function submitProctorExam(e) {
-      e.preventDefault();
-      if (!activeProctorCertId) return;
-
-      const formData = new FormData(e.target);
-      let score = 0;
-      if (formData.get('q1') === 'correct') score++;
-      if (formData.get('q2') === 'correct') score++;
-      if (formData.get('q3') === 'correct') score++;
-
-      const percentScore = Math.round((score / 3) * 100);
-
-      await supabaseClient
-        .from('certifications')
-        .update({ progress_percent: percentScore })
-        .eq('id', activeProctorCertId);
-
-      alert(`Assessment Submitted! Score: ${score}/3 (${percentScore}%).`);
-    }
-
     async function promptScreenshotAndExit() {
       if (!activeProctorCertId) return;
+
+      const newPercent = prompt('Enter your updated certification progress percentage (0-100):', '100');
+      if (newPercent === null) return;
 
       const screenshotUrl = prompt('Paste your proctor session screenshot URL (Google Drive, Imgur, etc.):');
       if (!screenshotUrl) return;
 
+      const clampedPercent = Math.max(0, Math.min(100, parseInt(newPercent, 10) || 0));
       const certIdToClose = activeProctorCertId;
       activeProctorCertId = null;
 
@@ -440,12 +398,13 @@
         .from('certifications')
         .update({ 
           is_proctored_live: false,
+          progress_percent: clampedPercent,
           proof_url: screenshotUrl.trim(),
           status: 'pending_approval'
         })
         .eq('id', certIdToClose);
 
-      alert('Proctor session ended and screenshot proof submitted for professor review!');
+      alert('Proctor session ended, progress updated, and screenshot proof submitted!');
       await loadStudentCerts();
     }
 
@@ -668,12 +627,12 @@
     }
 
     async function updateProofUrl(certId) {
-      const url = prompt('Paste your Google Drive, Credly, or Certificate Proof URL:');
+      const url = prompt('Paste your Course, Exam, or Certificate Proof URL:');
       if (!url) return;
 
       const { error } = await supabaseClient
         .from('certifications')
-        .update({ proof_url: url.trim(), status: 'pending_approval', progress_percent: 100 })
+        .update({ proof_url: url.trim() })
         .eq('id', certId);
 
       if (error) alert(error.message);
@@ -708,6 +667,7 @@
         };
         const statusLabel = cert.status.replace('_', ' ').toUpperCase();
         const safeTitle = cert.cert_title.replace(/'/g, "\\'");
+        const safeProof = cert.proof_url ? cert.proof_url.replace(/'/g, "\\'") : '';
 
         return `
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
@@ -718,7 +678,7 @@
               </div>
               <div class="flex items-center gap-2">
                 ${cert.status !== 'verified' ? `
-                  <button onclick="startProctorSession('${cert.id}', '${safeTitle}', ${cert.progress_percent}, ${cert.tab_violations || 0})"
+                  <button onclick="startProctorSession('${cert.id}', '${safeTitle}', ${cert.progress_percent}, ${cert.tab_violations || 0}, '${safeProof}')"
                     class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold rounded-lg transition">
                     Enable Proctor Mode
                   </button>
@@ -754,8 +714,8 @@
 
               <div class="flex items-center gap-3">
                 ${cert.proof_url 
-                  ? `<a href="${cert.proof_url}" target="_blank" class="text-emerald-400 hover:underline font-medium">View Screenshot Proof ↗</a>` 
-                  : `<button onclick="updateProofUrl('${cert.id}')" class="text-blue-400 hover:underline font-medium">+ Submit Proof Link</button>`
+                  ? `<a href="${cert.proof_url}" target="_blank" class="text-emerald-400 hover:underline font-medium">View Course/Proof Link ↗</a>` 
+                  : `<button onclick="updateProofUrl('${cert.id}')" class="text-blue-400 hover:underline font-medium">+ Add Course/Exam Link</button>`
                 }
                 <span class="text-slate-500 font-mono text-[11px]">ID: ${cert.verification_code || 'N/A'}</span>
               </div>
@@ -809,7 +769,7 @@
           </td>
           <td class="py-3.5 px-4">
             ${row.proof_url 
-              ? `<a href="${row.proof_url}" target="_blank" class="text-xs text-blue-400 hover:underline font-medium">View Screenshot ↗</a>` 
+              ? `<a href="${row.proof_url}" target="_blank" class="text-xs text-blue-400 hover:underline font-medium">Open Link ↗</a>` 
               : `<span class="text-xs text-slate-500">None</span>`}
           </td>
           <td class="py-3.5 px-4">
