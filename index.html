@@ -33,11 +33,11 @@
         </div>
         <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
           <p class="font-semibold text-white">📸 SCREENSHOT FIRST BEFORE LEAVING</p>
-          <p class="text-slate-400">Before ending your proctor session, ensure you capture your proof/screenshot. You will be prompted to submit your progress percentage and screenshot link upon exit.</p>
+          <p class="text-slate-400">Ensure you take your screenshot proof before exiting or ending your proctor session. You can upload it directly from your dashboard once back.</p>
         </div>
         <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
           <p class="font-semibold text-white">🔄 Multi-Attempt Tracking</p>
-          <p class="text-slate-400">You can take multiple attempts (e.g., 30% on Attempt 1, 100% on Attempt 2). Each attempt is logged and tracked for your professor's review.</p>
+          <p class="text-slate-400">Every time you launch proctor mode, it logs a new attempt. You can incrementally build up your progress percentage across multiple attempts.</p>
         </div>
       </div>
 
@@ -85,26 +85,26 @@
       WARNING: Tab switch or fullscreen exit detected! This violation has been logged to your professor's dashboard.
     </div>
 
-    <!-- Center Workspace -->
+    <!-- Center Workspace with Rules Sidebar -->
     <div id="proctor-status-box" class="max-w-6xl w-full mx-auto my-4 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 transition-colors duration-300">
       
-      <!-- Left Info & Rules Panel -->
+      <!-- Left Sidebar Rules & Guidelines -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between space-y-4">
         <div class="space-y-3">
           <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
-            ✓ Focus & Fullscreen Lock Enabled
+            ✓ Fullscreen Lock Active
           </div>
-          <h3 class="text-lg font-bold text-white">Assessment Workspace</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            Complete your coursework or exam using the portal link on the right. Remember to take your screenshot before ending the session.
-          </p>
+          <h3 class="text-lg font-bold text-white">Proctor Rules & Guidelines</h3>
+          <ul class="text-xs text-slate-300 space-y-2 list-disc pl-4 leading-relaxed">
+            <li><strong>Do not change tabs</strong> or minimize windows (triggers violation strikes).</li>
+            <li><strong>Stay in fullscreen</strong> mode throughout your session.</li>
+            <li><strong>Take your screenshot</strong> of your attempt progress before leaving or ending the session.</li>
+            <li>Use the portal button on the right to access your training platform safely without penalties.</li>
+          </ul>
         </div>
 
-        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-          <p class="text-xs font-semibold text-slate-300">Rule Reminder</p>
-          <p class="text-[11px] text-slate-400">
-            Clicking the portal link is authorized and will not trigger a strike.
-          </p>
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400">
+          Authorized portal navigation is fully exempted from violation triggers.
         </div>
       </div>
 
@@ -127,13 +127,10 @@
       </div>
     </div>
 
-    <!-- Bottom Controls -->
-    <div class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 border-t border-slate-800 pt-4">
-      <button onclick="reEnterFullscreen()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700">
-        Re-lock Fullscreen
-      </button>
-      <button onclick="promptEndSessionAndSubmit()" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition shadow-lg shadow-red-600/20">
-        End Proctor Session & Submit Attempt 📸
+    <!-- Bottom Controls (No Re-lock button) -->
+    <div class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-end gap-4 border-t border-slate-800 pt-4">
+      <button onclick="endProctorSession()" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition shadow-lg shadow-red-600/20">
+        End Proctor Session & Return to Dashboard
       </button>
     </div>
   </div>
@@ -306,7 +303,7 @@
             Professor / Admin Monitor
           </span>
           <h2 class="text-lg font-bold text-white mt-1">Class Certification & Live Proctor Overview</h2>
-          <p class="text-xs text-slate-400">Monitor attempts, live proctor status, tab violations, and screenshot proofs.</p>
+          <p class="text-xs text-slate-400">Monitor attempts, live proctor status, tab violations, screenshot proofs, and private student concerns.</p>
         </div>
         <button onclick="loadAdminData()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700">
           Refresh Records
@@ -346,10 +343,9 @@
     let currentUser = null;
     let currentProfile = null;
 
-    // Proctor Mode State
-    let pendingCertData = null; // Stored before instruction modal confirmation
+    let pendingCertData = null;
     let activeProctorCertId = null;
-    let proctorViolations = 0;
+    let proctorViolations = -1; // Starts at -1 offset so initial page load resolves to 0
     let proctorSeconds = 0;
     let proctorTimerInterval = null;
     let ignoreNextVisibilityChange = false;
@@ -381,11 +377,11 @@
       closeInstructionModal();
 
       activeProctorCertId = certId;
-      proctorViolations = existingViolations || 0;
+      proctorViolations = existingViolations !== null && existingViolations !== undefined ? existingViolations : -1;
       proctorSeconds = 0;
 
       document.getElementById('proctor-cert-title').textContent = `${certTitle} (Attempt #${(currentAttempts || 0) + 1})`;
-      document.getElementById('proctor-violations-count').textContent = proctorViolations;
+      document.getElementById('proctor-violations-count').textContent = Math.max(0, proctorViolations);
       document.getElementById('proctor-current-percent').textContent = `${currentPercent}%`;
       document.getElementById('violation-alert').classList.add('hidden');
 
@@ -429,19 +425,8 @@
       ignoreNextVisibilityChange = true;
     }
 
-    async function promptEndSessionAndSubmit() {
+    async function endProctorSession() {
       if (!activeProctorCertId) return;
-
-      const newPercent = prompt('Enter your completed progress percentage for this attempt (0-100):', '100');
-      if (newPercent === null) return;
-
-      const screenshotUrl = prompt('📸 SCREENSHOT REQUIRED: Paste your attempt proof screenshot URL (Google Drive, Imgur, etc.):');
-      if (!screenshotUrl) {
-        alert('Screenshot proof is required to submit this attempt!');
-        return;
-      }
-
-      const clampedPercent = Math.max(0, Math.min(100, parseInt(newPercent, 10) || 0));
       const certIdToClose = activeProctorCertId;
       activeProctorCertId = null;
 
@@ -452,7 +437,6 @@
         await document.exitFullscreen().catch(() => {});
       }
 
-      // Fetch current attempts count to increment
       const { data: currentCert } = await supabaseClient
         .from('certifications')
         .select('attempts')
@@ -460,21 +444,43 @@
         .single();
 
       const newAttemptsCount = (currentCert?.attempts || 0) + 1;
-      const newStatus = clampedPercent === 100 ? 'pending_approval' : 'in_progress';
 
       await supabaseClient
         .from('certifications')
         .update({ 
           is_proctored_live: false,
-          progress_percent: clampedPercent,
-          proof_url: screenshotUrl.trim(),
-          attempts: newAttemptsCount,
-          status: newStatus
+          attempts: newAttemptsCount
         })
         .eq('id', certIdToClose);
 
-      alert(`Attempt #${newAttemptsCount} submitted successfully with screenshot proof!`);
+      alert(`Proctor session ended. Attempt #${newAttemptsCount} recorded. Please remember to update your progress percentage and submit your screenshot proof on your dashboard!`);
       await loadStudentCerts();
+    }
+
+    async function submitScreenshot(certId) {
+      const screenshotUrl = prompt('📸 Paste your attempt screenshot proof URL (Google Drive, Imgur, etc.):');
+      if (!screenshotUrl) return;
+
+      const newPercent = prompt('Enter your current progress percentage (0-100):', '100');
+      if (newPercent === null) return;
+
+      const clampedPercent = Math.max(0, Math.min(100, parseInt(newPercent, 10) || 0));
+      const newStatus = clampedPercent === 100 ? 'pending_approval' : 'in_progress';
+
+      const { error } = await supabaseClient
+        .from('certifications')
+        .update({ 
+          proof_url: screenshotUrl.trim(),
+          progress_percent: clampedPercent,
+          status: newStatus
+        })
+        .eq('id', certId);
+
+      if (error) alert(error.message);
+      else {
+        alert('Screenshot proof and progress submitted successfully!');
+        await loadStudentCerts();
+      }
     }
 
     async function recordProctorViolation() {
@@ -486,7 +492,8 @@
       }
 
       proctorViolations++;
-      document.getElementById('proctor-violations-count').textContent = proctorViolations;
+      const displayStrikes = Math.max(0, proctorViolations);
+      document.getElementById('proctor-violations-count').textContent = displayStrikes;
       document.getElementById('violation-alert').classList.remove('hidden');
 
       const box = document.getElementById('proctor-status-box');
@@ -515,9 +522,97 @@
       if (activeProctorCertId) e.preventDefault();
     });
 
-    async function reEnterFullscreen() {
-      if (document.documentElement.requestFullscreen) {
-        await document.documentElement.requestFullscreen();
+    // ==========================================
+    // PRIVATE COMMENTS / CHAT SYSTEM
+    // ==========================================
+    async function openChatModal(certId, certTitle) {
+      const modalHtml = `
+        <div id="chat-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl flex flex-col h-[500px]">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <h3 class="font-bold text-white text-base">Private Concerns & Chat</h3>
+                <p class="text-xs text-slate-400">${certTitle}</p>
+              </div>
+              <button onclick="closeChatModal()" class="text-slate-400 hover:text-white text-sm font-bold">✕</button>
+            </div>
+
+            <div id="chat-messages-container" class="flex-1 overflow-y-auto space-y-3 pr-2 text-xs">
+              <p class="text-center text-slate-500 py-4">Loading conversation...</p>
+            </div>
+
+            <form onsubmit="sendChatMessage(event, '${certId}')" class="flex gap-2 pt-2 border-t border-slate-800">
+              <input type="text" id="chat-input-msg" required placeholder="Type your concern or reply..." 
+                class="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs focus:outline-none focus:border-emerald-500 text-white" />
+              <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs transition">
+                Send
+              </button>
+            </form>
+          </div>
+        </div>
+      `;
+      const existing = document.getElementById('chat-modal');
+      if (existing) existing.remove();
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      await loadChatMessages(certId);
+    }
+
+    function closeChatModal() {
+      const modal = document.getElementById('chat-modal');
+      if (modal) modal.remove();
+    }
+
+    async function loadChatMessages(certId) {
+      const { data, error } = await supabaseClient
+        .from('cert_comments')
+        .select('*, profiles(full_name, role)')
+        .eq('cert_id', certId)
+        .order('created_at', { ascending: true });
+
+      const container = document.getElementById('chat-messages-container');
+      if (!container) return;
+
+      if (error || !data || data.length === 0) {
+        container.innerHTML = `<p class="text-center text-slate-500 py-8">No messages or concerns logged yet. Start the conversation below!</p>`;
+        return;
+      }
+
+      container.innerHTML = data.map(msg => {
+        const isMe = msg.sender_id === currentUser.id;
+        const isAdmin = msg.profiles?.role === 'admin';
+        return `
+          <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1">
+            <div class="flex items-center gap-2 text-[10px] text-slate-400">
+              <span class="font-semibold text-slate-300">${msg.profiles?.full_name || 'User'}</span>
+              ${isAdmin ? '<span class="px-1.5 py-0.2 bg-indigo-500/20 text-indigo-400 rounded">Admin</span>' : ''}
+              <span>${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+            <div class="p-3 rounded-xl max-w-[85%] text-xs ${isMe ? 'bg-indigo-600 text-white' : 'bg-slate-950 border border-slate-800 text-slate-200'}">
+              ${msg.message}
+            </div>
+          </div>
+        `;
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendChatMessage(e, certId) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input-msg');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const { error } = await supabaseClient.from('cert_comments').insert([{
+        cert_id: certId,
+        sender_id: currentUser.id,
+        message: text
+      }]);
+
+      if (error) {
+        alert('Failed to send message: ' + error.message);
+      } else {
+        input.value = '';
+        await loadChatMessages(certId);
       }
     }
 
@@ -678,7 +773,7 @@
         proof_url: proofUrl,
         verification_code: code,
         attempts: 0,
-        tab_violations: 0
+        tab_violations: -1
       }]);
 
       if (error) {
@@ -733,6 +828,7 @@
         const safeTitle = cert.cert_title.replace(/'/g, "\\'");
         const safeProof = cert.proof_url ? cert.proof_url.replace(/'/g, "\\'") : '';
         const attempts = cert.attempts || 0;
+        const violations = Math.max(0, cert.tab_violations || 0);
 
         return `
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
@@ -743,7 +839,7 @@
               </div>
               <div class="flex items-center gap-2">
                 ${cert.status !== 'verified' ? `
-                  <button onclick="promptProctorSession('${cert.id}', '${safeTitle}', ${cert.progress_percent}, ${cert.tab_violations || 0}, '${safeProof}', ${attempts})"
+                  <button onclick="promptProctorSession('${cert.id}', '${safeTitle}', ${cert.progress_percent}, ${cert.tab_violations ?? -1}, '${safeProof}', ${attempts})"
                     class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold rounded-lg transition shadow">
                     Enable Proctor Mode (Attempt #${attempts + 1})
                   </button>
@@ -757,7 +853,7 @@
             <!-- Progress Bar -->
             <div>
               <div class="flex justify-between text-xs mb-1">
-                <span class="text-slate-400">Completion Progress (Attempts logged: <strong>${attempts}</strong>)</span>
+                <span class="text-slate-400">Completion Progress (Attempts: <strong>${attempts}</strong>)</span>
                 <span class="font-semibold text-emerald-400">${cert.progress_percent}%</span>
               </div>
               <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
@@ -774,14 +870,16 @@
                     onchange="updateProgress('${cert.id}', this.value)"
                     class="w-16 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" />
                 </div>
-                <span class="text-slate-400">Strikes: <strong class="${(cert.tab_violations || 0) > 0 ? 'text-red-400' : 'text-slate-300'}">${cert.tab_violations || 0}</strong></span>
+                <span class="text-slate-400">Strikes: <strong class="${violations > 0 ? 'text-red-400' : 'text-slate-300'}">${violations}</strong></span>
               </div>
 
               <div class="flex items-center gap-3">
-                ${cert.proof_url 
-                  ? `<a href="${cert.proof_url}" target="_blank" class="text-emerald-400 hover:underline font-medium">View Attempt Proof ↗</a>` 
-                  : `<span class="text-slate-500">No proof uploaded</span>`
-                }
+                <button onclick="submitScreenshot('${cert.id}')" class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/30 rounded font-semibold transition">
+                  ${cert.proof_url ? 'Update Screenshot Proof ↗' : 'Submit Screenshot 📸'}
+                </button>
+                <button onclick="openChatModal('${cert.id}', '${safeTitle}')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded font-semibold transition">
+                  Concerns / Chat 💬
+                </button>
                 <span class="text-slate-500 font-mono text-[11px]">ID: ${cert.verification_code || 'N/A'}</span>
               </div>
             </div>
@@ -810,49 +908,56 @@
         return;
       }
 
-      tbody.innerHTML = data.map(row => `
-        <tr class="hover:bg-slate-800/40">
-          <td class="py-3.5 px-4">
-            <p class="font-semibold text-white">${row.profiles?.full_name || 'Unknown'}</p>
-            <p class="text-xs text-slate-400">${row.profiles?.student_number || ''}</p>
-          </td>
-          <td class="py-3.5 px-4">
-            <p class="font-medium text-slate-200">${row.cert_title}</p>
-            <p class="text-xs text-slate-400">${row.issuer}</p>
-          </td>
-          <td class="py-3.5 px-4 space-y-1">
-            <p class="text-xs font-semibold text-indigo-400">Total Attempts: ${row.attempts || 0}</p>
-            ${row.is_proctored_live 
-              ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold">
-                   <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span> LIVE TAKING
-                 </span>`
-              : `<span class="text-xs text-slate-500">Offline</span>`
-            }
-          </td>
-          <td class="py-3.5 px-4 space-y-1">
-            <span class="font-bold text-emerald-400">${row.progress_percent}%</span>
-            <p class="text-xs text-slate-400">Strikes: <strong class="${(row.tab_violations || 0) > 0 ? 'text-red-400' : 'text-slate-300'}">${row.tab_violations || 0}</strong></p>
-          </td>
-          <td class="py-3.5 px-4">
-            ${row.proof_url 
-              ? `<a href="${row.proof_url}" target="_blank" class="text-xs text-blue-400 hover:underline font-medium">View Proof ↗</a>` 
-              : `<span class="text-xs text-slate-500">None</span>`}
-          </td>
-          <td class="py-3.5 px-4">
-            <span class="text-xs font-semibold uppercase ${row.status === 'verified' ? 'text-emerald-400' : row.status === 'rejected' ? 'text-red-400' : 'text-amber-400'}">
-              ${row.status.replace('_', ' ')}
-            </span>
-          </td>
-          <td class="py-3.5 px-4 text-right space-x-2">
-            <button onclick="adminVerify('${row.id}', 'verified')" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 rounded text-xs font-semibold">
-              Approve
-            </button>
-            <button onclick="adminVerify('${row.id}', 'rejected')" class="px-2.5 py-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 rounded text-xs font-semibold">
-              Reject
-            </button>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = data.map(row => {
+        const violations = Math.max(0, row.tab_violations || 0);
+        const safeTitle = row.cert_title.replace(/'/g, "\\'");
+        return `
+          <tr class="hover:bg-slate-800/40">
+            <td class="py-3.5 px-4">
+              <p class="font-semibold text-white">${row.profiles?.full_name || 'Unknown'}</p>
+              <p class="text-xs text-slate-400">${row.profiles?.student_number || ''}</p>
+            </td>
+            <td class="py-3.5 px-4">
+              <p class="font-medium text-slate-200">${row.cert_title}</p>
+              <p class="text-xs text-slate-400">${row.issuer}</p>
+            </td>
+            <td class="py-3.5 px-4 space-y-1">
+              <p class="text-xs font-semibold text-indigo-400">Attempts: ${row.attempts || 0}</p>
+              ${row.is_proctored_live 
+                ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold">
+                     <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span> LIVE TAKING
+                   </span>`
+                : `<span class="text-xs text-slate-500">Offline</span>`
+              }
+            </td>
+            <td class="py-3.5 px-4 space-y-1">
+              <span class="font-bold text-emerald-400">${row.progress_percent}%</span>
+              <p class="text-xs text-slate-400">Strikes: <strong class="${violations > 0 ? 'text-red-400' : 'text-slate-300'}">${violations}</strong></p>
+            </td>
+            <td class="py-3.5 px-4">
+              ${row.proof_url 
+                ? `<a href="${row.proof_url}" target="_blank" class="text-xs text-blue-400 hover:underline font-medium">View Screenshot ↗</a>` 
+                : `<span class="text-xs text-slate-500">None</span>`}
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="text-xs font-semibold uppercase ${row.status === 'verified' ? 'text-emerald-400' : row.status === 'rejected' ? 'text-red-400' : 'text-amber-400'}">
+                ${row.status.replace('_', ' ')}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-right space-x-2">
+              <button onclick="openChatModal('${row.id}', '${safeTitle}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded text-xs font-semibold">
+                Chat 💬
+              </button>
+              <button onclick="adminVerify('${row.id}', 'verified')" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 rounded text-xs font-semibold">
+                Approve
+              </button>
+              <button onclick="adminVerify('${row.id}', 'rejected')" class="px-2.5 py-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 rounded text-xs font-semibold">
+                Reject
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     async function adminVerify(certId, newStatus) {
