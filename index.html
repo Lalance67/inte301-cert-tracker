@@ -13,9 +13,10 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- FULLSCREEN PROCTOR OVERLAY -->
-  <div id="proctor-overlay" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-between p-6 select-none">
-    <div class="w-full max-w-4xl flex items-center justify-between border-b border-slate-800 pb-4">
+  <!-- FULLSCREEN PROCTOR OVERLAY WITH EXAM WORKSPACE -->
+  <div id="proctor-overlay" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col justify-between p-4 sm:p-6 select-none overflow-y-auto">
+    <!-- Top Proctor Bar -->
+    <div class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
       <div class="flex items-center gap-3">
         <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span>
         <div>
@@ -23,45 +24,119 @@
           <h2 id="proctor-cert-title" class="text-lg font-bold text-white">Certification Session</h2>
         </div>
       </div>
-      <div class="text-right">
-        <p class="text-xs text-slate-400">Session Duration</p>
-        <p id="proctor-timer" class="text-xl font-mono font-bold text-emerald-400">00:00:00</p>
+
+      <div class="flex items-center gap-6">
+        <div class="text-center">
+          <p class="text-[11px] text-slate-400 uppercase">Tab Violations</p>
+          <p id="proctor-violations-count" class="text-lg font-bold text-red-400">0</p>
+        </div>
+        <div class="text-center">
+          <p class="text-[11px] text-slate-400 uppercase">Progress</p>
+          <p id="proctor-current-percent" class="text-lg font-bold text-emerald-400">0%</p>
+        </div>
+        <div class="text-right">
+          <p class="text-[11px] text-slate-400 uppercase">Session Duration</p>
+          <p id="proctor-timer" class="text-lg font-mono font-bold text-emerald-400">00:00:00</p>
+        </div>
       </div>
     </div>
 
-    <!-- Center Monitor Status -->
-    <div id="proctor-status-box" class="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4 transition-colors duration-300">
-      <div class="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl font-bold">
-        ✓
-      </div>
-      <h3 class="text-xl font-bold text-white">Focus & Tab Lock Enabled</h3>
-      <p class="text-sm text-slate-400">
-        Your session is actively monitored. Do <strong class="text-white">not</strong> switch browser tabs, minimize this window, or exit full-screen until you end your session.
-      </p>
+    <!-- Violation Banner -->
+    <div id="violation-alert" class="hidden max-w-6xl w-full mx-auto mt-3 p-3 rounded-lg bg-red-500/20 border border-red-500 text-red-300 text-xs font-semibold text-center">
+      WARNING: Tab switch or fullscreen exit detected! This violation has been logged to your professor's dashboard.
+    </div>
 
-      <div class="pt-4 flex justify-center gap-6 border-t border-slate-800">
-        <div>
-          <p class="text-xs text-slate-400 uppercase">Tab Violations</p>
-          <p id="proctor-violations-count" class="text-2xl font-bold text-red-400">0</p>
+    <!-- Center Workspace -->
+    <div id="proctor-status-box" class="max-w-6xl w-full mx-auto my-4 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 transition-colors duration-300">
+      
+      <!-- Left Info & Rules Panel -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+        <div class="space-y-3">
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+            ✓ Focus & Tab Lock Enabled
+          </div>
+          <h3 class="text-lg font-bold text-white">Proctored Assessment Workspace</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Complete your certification assessment on the right while staying in Fullscreen Mode. Switching tabs, minimizing the browser, or pressing <kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200">ESC</kbd> immediately logs a violation strike.
+          </p>
         </div>
-        <div>
-          <p class="text-xs text-slate-400 uppercase">Current Progress</p>
-          <p id="proctor-current-percent" class="text-2xl font-bold text-emerald-400">0%</p>
+
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+          <p class="text-xs font-semibold text-slate-300">Screenshot Requirement</p>
+          <p class="text-[11px] text-slate-400">
+            When you finish your session, you will be prompted to submit a screenshot link proving your active proctored session.
+          </p>
         </div>
       </div>
 
-      <div id="violation-alert" class="hidden p-3 rounded-lg bg-red-500/20 border border-red-500 text-red-300 text-xs font-semibold">
-        WARNING: Tab switch or fullscreen exit detected! This violation has been logged to your professor's dashboard.
+      <!-- Right Interactive Assessment Area -->
+      <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Proctored Certification Assessment</span>
+            <span class="text-xs text-slate-400">Passing Score: 100%</span>
+          </div>
+
+          <form id="proctor-exam-form" onsubmit="submitProctorExam(event)" class="space-y-5">
+            <div>
+              <p class="text-sm font-semibold text-white mb-2">1. Which security mechanism ensures data integrity and verifies the authenticity of a digital certificate?</p>
+              <div class="space-y-2 text-xs text-slate-300">
+                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="radio" name="q1" value="correct" required class="accent-emerald-500">
+                  <span>Cryptographic Hashing & Digital Signatures (PKI)</span>
+                </label>
+                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="radio" name="q1" value="wrong" class="accent-emerald-500">
+                  <span>Dynamic Host Configuration Protocol (DHCP)</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-sm font-semibold text-white mb-2">2. In cloud database security (such as Supabase PostgreSQL), what restricts row-level access per authenticated user?</p>
+              <div class="space-y-2 text-xs text-slate-300">
+                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="radio" name="q2" value="wrong" required class="accent-emerald-500">
+                  <span>Cross-Origin Resource Sharing (CORS)</span>
+                </label>
+                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="radio" name="q2" value="correct" class="accent-emerald-500">
+                  <span>Row Level Security (RLS) Policies</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-sm font-semibold text-white mb-2">3. What is the primary purpose of network segmentation using VLANs?</p>
+              <div class="space-y-2 text-xs text-slate-300">
+                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="radio" name="q3" value="correct" required class="accent-emerald-500">
+                  <span>Isolate broadcast domains and improve security/performance</span>
+                </label>
+                <label class="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="radio" name="q3" value="wrong" class="accent-emerald-500">
+                  <span>Increase physical cable length limits</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm transition">
+                Submit Proctored Assessment & Update Progress
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
     <!-- Bottom Controls -->
-    <div class="w-full max-w-4xl flex flex-wrap items-center justify-between gap-4 border-t border-slate-800 pt-4">
+    <div class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 border-t border-slate-800 pt-4">
       <button onclick="reEnterFullscreen()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700">
         Re-lock Fullscreen
       </button>
-      <button onclick="stopProctorSession()" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition">
-        End Proctor Session
+      <button onclick="promptScreenshotAndExit()" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition">
+        Submit Session & Screenshot Proof
       </button>
     </div>
   </div>
@@ -234,7 +309,7 @@
             Professor / Admin Monitor
           </span>
           <h2 class="text-lg font-bold text-white mt-1">Class Certification & Live Proctor Overview</h2>
-          <p class="text-xs text-slate-400">Monitor active proctored sessions, tab-switch violations, and verify certificates.</p>
+          <p class="text-xs text-slate-400">Monitor active proctored sessions, tab-switch violations, and verify screenshot proof.</p>
         </div>
         <button onclick="loadAdminData()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700">
           Refresh Records
@@ -247,9 +322,9 @@
             <tr class="border-b border-slate-800 text-[11px] uppercase text-slate-400 bg-slate-950/50">
               <th class="py-3.5 px-4">Student</th>
               <th class="py-3.5 px-4">Certification & Issuer</th>
-              <th class="py-3.5 px-4">Live Proctor & Strikes</th>
+              <th class="py-3.5 px-4">Live Status & Strikes</th>
               <th class="py-3.5 px-4">Progress</th>
-              <th class="py-3.5 px-4">Proof</th>
+              <th class="py-3.5 px-4">Proof / Screenshot</th>
               <th class="py-3.5 px-4">Status</th>
               <th class="py-3.5 px-4 text-right">Admin Action</th>
             </tr>
@@ -296,13 +371,13 @@
       proctorViolations = existingViolations || 0;
       proctorSeconds = 0;
 
+      document.getElementById('proctor-exam-form').reset();
       document.getElementById('proctor-cert-title').textContent = certTitle;
       document.getElementById('proctor-violations-count').textContent = proctorViolations;
       document.getElementById('proctor-current-percent').textContent = `${currentPercent}%`;
       document.getElementById('violation-alert').classList.add('hidden');
       document.getElementById('proctor-overlay').classList.remove('hidden');
 
-      // Request Fullscreen
       try {
         if (document.documentElement.requestFullscreen) {
           await document.documentElement.requestFullscreen();
@@ -311,13 +386,11 @@
         console.warn('Fullscreen request blocked:', err);
       }
 
-      // Mark live in Supabase
       await supabaseClient
         .from('certifications')
         .update({ is_proctored_live: true })
         .eq('id', certId);
 
-      // Start Timer
       proctorTimerInterval = setInterval(() => {
         proctorSeconds++;
         const hrs = String(Math.floor(proctorSeconds / 3600)).padStart(2, '0');
@@ -325,6 +398,55 @@
         const secs = String(proctorSeconds % 60).padStart(2, '0');
         document.getElementById('proctor-timer').textContent = `${hrs}:${mins}:${secs}`;
       }, 1000);
+    }
+
+    async function submitProctorExam(e) {
+      e.preventDefault();
+      if (!activeProctorCertId) return;
+
+      const formData = new FormData(e.target);
+      let score = 0;
+      if (formData.get('q1') === 'correct') score++;
+      if (formData.get('q2') === 'correct') score++;
+      if (formData.get('q3') === 'correct') score++;
+
+      const percentScore = Math.round((score / 3) * 100);
+
+      await supabaseClient
+        .from('certifications')
+        .update({ progress_percent: percentScore })
+        .eq('id', activeProctorCertId);
+
+      alert(`Assessment Submitted! Score: ${score}/3 (${percentScore}%).`);
+    }
+
+    async function promptScreenshotAndExit() {
+      if (!activeProctorCertId) return;
+
+      const screenshotUrl = prompt('Paste your proctor session screenshot URL (Google Drive, Imgur, etc.):');
+      if (!screenshotUrl) return;
+
+      const certIdToClose = activeProctorCertId;
+      activeProctorCertId = null;
+
+      clearInterval(proctorTimerInterval);
+      document.getElementById('proctor-overlay').classList.add('hidden');
+
+      if (document.fullscreenElement && document.exitFullscreen) {
+        await document.exitFullscreen().catch(() => {});
+      }
+
+      await supabaseClient
+        .from('certifications')
+        .update({ 
+          is_proctored_live: false,
+          proof_url: screenshotUrl.trim(),
+          status: 'pending_approval'
+        })
+        .eq('id', certIdToClose);
+
+      alert('Proctor session ended and screenshot proof submitted for professor review!');
+      await loadStudentCerts();
     }
 
     async function recordProctorViolation() {
@@ -343,21 +465,18 @@
         .eq('id', activeProctorCertId);
     }
 
-    // Detect Tab Switching / Minimizing
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && activeProctorCertId) {
         recordProctorViolation();
       }
     });
 
-    // Detect Exiting Fullscreen (e.g. pressing ESC)
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement && activeProctorCertId) {
         recordProctorViolation();
       }
     });
 
-    // Block Right-Click during Proctor Mode
     document.addEventListener('contextmenu', (e) => {
       if (activeProctorCertId) e.preventDefault();
     });
@@ -366,26 +485,6 @@
       if (document.documentElement.requestFullscreen) {
         await document.documentElement.requestFullscreen();
       }
-    }
-
-    async function stopProctorSession() {
-      if (!activeProctorCertId) return;
-      const certIdToClose = activeProctorCertId;
-      activeProctorCertId = null;
-
-      clearInterval(proctorTimerInterval);
-      document.getElementById('proctor-overlay').classList.add('hidden');
-
-      if (document.fullscreenElement && document.exitFullscreen) {
-        await document.exitFullscreen().catch(() => {});
-      }
-
-      await supabaseClient
-        .from('certifications')
-        .update({ is_proctored_live: false })
-        .eq('id', certIdToClose);
-
-      await loadStudentCerts();
     }
 
     // ==========================================
@@ -655,7 +754,7 @@
 
               <div class="flex items-center gap-3">
                 ${cert.proof_url 
-                  ? `<a href="${cert.proof_url}" target="_blank" class="text-emerald-400 hover:underline font-medium">View Submitted Proof ↗</a>` 
+                  ? `<a href="${cert.proof_url}" target="_blank" class="text-emerald-400 hover:underline font-medium">View Screenshot Proof ↗</a>` 
                   : `<button onclick="updateProofUrl('${cert.id}')" class="text-blue-400 hover:underline font-medium">+ Submit Proof Link</button>`
                 }
                 <span class="text-slate-500 font-mono text-[11px]">ID: ${cert.verification_code || 'N/A'}</span>
@@ -710,7 +809,7 @@
           </td>
           <td class="py-3.5 px-4">
             ${row.proof_url 
-              ? `<a href="${row.proof_url}" target="_blank" class="text-xs text-blue-400 hover:underline">Open Link ↗</a>` 
+              ? `<a href="${row.proof_url}" target="_blank" class="text-xs text-blue-400 hover:underline font-medium">View Screenshot ↗</a>` 
               : `<span class="text-xs text-slate-500">None</span>`}
           </td>
           <td class="py-3.5 px-4">
