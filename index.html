@@ -13,7 +13,46 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
-  <!-- FULLSCREEN PROCTOR OVERLAY WITH DYNAMIC PORTAL ACCESS -->
+  <!-- PRE-PROCTOR INSTRUCTIONS MODAL -->
+  <div id="instruction-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl">
+      <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl font-bold font-mono">
+          !
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white">Proctor Mode Instructions & Rules</h3>
+          <p class="text-xs text-slate-400">Please read carefully before launching your session.</p>
+        </div>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+        <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
+          <p class="font-semibold text-white">🔒 Mandatory Fullscreen & Tab Lock</p>
+          <p class="text-slate-400">Your browser will enter fullscreen mode. Switching tabs, minimizing windows, or pressing <kbd class="px-1 py-0.5 bg-slate-800 rounded">ESC</kbd> will instantly trigger a <strong>violation strike</strong>.</p>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
+          <p class="font-semibold text-white">📸 SCREENSHOT FIRST BEFORE LEAVING</p>
+          <p class="text-slate-400">Before ending your proctor session, ensure you capture your proof/screenshot. You will be prompted to submit your progress percentage and screenshot link upon exit.</p>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
+          <p class="font-semibold text-white">🔄 Multi-Attempt Tracking</p>
+          <p class="text-slate-400">You can take multiple attempts (e.g., 30% on Attempt 1, 100% on Attempt 2). Each attempt is logged and tracked for your professor's review.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+        <button onclick="closeInstructionModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-300">
+          Cancel
+        </button>
+        <button onclick="confirmAndLaunchProctor()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold rounded-lg text-white transition shadow-lg shadow-indigo-600/20">
+          I Understand, Launch Proctor Mode 🚀
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN PROCTOR OVERLAY -->
   <div id="proctor-overlay" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col justify-between p-4 sm:p-6 select-none overflow-y-auto">
     <!-- Top Proctor Bar -->
     <div class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
@@ -31,7 +70,7 @@
           <p id="proctor-violations-count" class="text-lg font-bold text-red-400">0</p>
         </div>
         <div class="text-center">
-          <p class="text-[11px] text-slate-400 uppercase">Progress</p>
+          <p class="text-[11px] text-slate-400 uppercase">Current Progress</p>
           <p id="proctor-current-percent" class="text-lg font-bold text-emerald-400">0%</p>
         </div>
         <div class="text-right">
@@ -55,37 +94,34 @@
           <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
             ✓ Focus & Fullscreen Lock Enabled
           </div>
-          <h3 class="text-lg font-bold text-white">Proctored Assessment Workspace</h3>
+          <h3 class="text-lg font-bold text-white">Assessment Workspace</h3>
           <p class="text-xs text-slate-400 leading-relaxed">
-            You are actively monitored. Click the button on the right to launch your specific course or exam platform link in a new tab. Switching away from this window triggers a violation strike.
+            Complete your coursework or exam using the portal link on the right. Remember to take your screenshot before ending the session.
           </p>
         </div>
 
         <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-          <p class="text-xs font-semibold text-slate-300">Submission Reminder</p>
+          <p class="text-xs font-semibold text-slate-300">Rule Reminder</p>
           <p class="text-[11px] text-slate-400">
-            When finished, click the bottom exit button to update your progress and submit your proctor screenshot proof.
+            Clicking the portal link is authorized and will not trigger a strike.
           </p>
         </div>
       </div>
 
-      <!-- Right Dynamic Portal Launcher Area -->
+      <!-- Right Portal Launcher Area -->
       <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-6">
         <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-3xl font-bold">
-          🔗
+          🌐
         </div>
         <div class="space-y-2 max-w-md">
           <h3 id="proctor-portal-heading" class="text-xl font-bold text-white">Launch Certificate Portal</h3>
           <p class="text-xs text-slate-400">
-            Click below to open your assigned training or exam platform in a new tab while your proctor session and timer stay active here.
+            Click below to open your training or exam platform in a new tab while your proctor timer runs safely here.
           </p>
         </div>
         <div class="flex flex-wrap items-center justify-center gap-4">
-          <a id="proctor-launch-btn" href="#" target="_blank" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-500/20">
+          <a id="proctor-launch-btn" href="#" target="_blank" onclick="exemptNextViolation()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">
             Open Certification Portal ↗
-          </a>
-          <a href="https://www.credly.com" target="_blank" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-sm transition border border-slate-700">
-            Open Credly ↗
           </a>
         </div>
       </div>
@@ -96,8 +132,8 @@
       <button onclick="reEnterFullscreen()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700">
         Re-lock Fullscreen
       </button>
-      <button onclick="promptScreenshotAndExit()" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition">
-        Submit Session & Screenshot Proof
+      <button onclick="promptEndSessionAndSubmit()" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition shadow-lg shadow-red-600/20">
+        End Proctor Session & Submit Attempt 📸
       </button>
     </div>
   </div>
@@ -228,7 +264,7 @@
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-medium text-slate-400 mb-1">Progress (%)</label>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Initial Progress (%)</label>
                 <input type="number" id="cert-percent" min="0" max="100" value="0" required
                   class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
               </div>
@@ -239,7 +275,7 @@
               </div>
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">Course / Exam / Proof Link</label>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Course / Exam Portal Link</label>
               <input type="url" id="cert-proof" placeholder="https://aws.amazon.com/certification/..."
                 class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm focus:outline-none focus:border-emerald-500" />
             </div>
@@ -270,7 +306,7 @@
             Professor / Admin Monitor
           </span>
           <h2 class="text-lg font-bold text-white mt-1">Class Certification & Live Proctor Overview</h2>
-          <p class="text-xs text-slate-400">Monitor active proctored sessions, tab-switch violations, and verify screenshot proof.</p>
+          <p class="text-xs text-slate-400">Monitor attempts, live proctor status, tab violations, and screenshot proofs.</p>
         </div>
         <button onclick="loadAdminData()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700">
           Refresh Records
@@ -283,9 +319,9 @@
             <tr class="border-b border-slate-800 text-[11px] uppercase text-slate-400 bg-slate-950/50">
               <th class="py-3.5 px-4">Student</th>
               <th class="py-3.5 px-4">Certification & Issuer</th>
-              <th class="py-3.5 px-4">Live Status & Strikes</th>
-              <th class="py-3.5 px-4">Progress</th>
-              <th class="py-3.5 px-4">Proof / Screenshot</th>
+              <th class="py-3.5 px-4">Attempts & Live Status</th>
+              <th class="py-3.5 px-4">Progress & Strikes</th>
+              <th class="py-3.5 px-4">Screenshot Proof</th>
               <th class="py-3.5 px-4">Status</th>
               <th class="py-3.5 px-4 text-right">Admin Action</th>
             </tr>
@@ -311,10 +347,12 @@
     let currentProfile = null;
 
     // Proctor Mode State
+    let pendingCertData = null; // Stored before instruction modal confirmation
     let activeProctorCertId = null;
     let proctorViolations = 0;
     let proctorSeconds = 0;
     let proctorTimerInterval = null;
+    let ignoreNextVisibilityChange = false;
 
     window.addEventListener('DOMContentLoaded', async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
@@ -325,19 +363,32 @@
     });
 
     // ==========================================
-    // PROCTOR MODE ENGINE (TAB & FULLSCREEN LOCK)
+    // PROCTOR WORKFLOW & INSTRUCTIONS MODAL
     // ==========================================
-    async function startProctorSession(certId, certTitle, currentPercent, existingViolations, proofUrl) {
+    function promptProctorSession(certId, certTitle, currentPercent, existingViolations, proofUrl, currentAttempts) {
+      pendingCertData = { certId, certTitle, currentPercent, existingViolations, proofUrl, currentAttempts };
+      document.getElementById('instruction-modal').classList.remove('hidden');
+    }
+
+    function closeInstructionModal() {
+      document.getElementById('instruction-modal').classList.add('hidden');
+      pendingCertData = null;
+    }
+
+    async function confirmAndLaunchProctor() {
+      if (!pendingCertData) return;
+      const { certId, certTitle, currentPercent, existingViolations, proofUrl, currentAttempts } = pendingCertData;
+      closeInstructionModal();
+
       activeProctorCertId = certId;
       proctorViolations = existingViolations || 0;
       proctorSeconds = 0;
 
-      document.getElementById('proctor-cert-title').textContent = certTitle;
+      document.getElementById('proctor-cert-title').textContent = `${certTitle} (Attempt #${(currentAttempts || 0) + 1})`;
       document.getElementById('proctor-violations-count').textContent = proctorViolations;
       document.getElementById('proctor-current-percent').textContent = `${currentPercent}%`;
       document.getElementById('violation-alert').classList.add('hidden');
 
-      // Set dynamic portal link if available, otherwise default to Google search / NetAcad
       const launchBtn = document.getElementById('proctor-launch-btn');
       const portalHeading = document.getElementById('proctor-portal-heading');
       if (proofUrl && proofUrl.startsWith('http')) {
@@ -374,14 +425,21 @@
       }, 1000);
     }
 
-    async function promptScreenshotAndExit() {
+    function exemptNextViolation() {
+      ignoreNextVisibilityChange = true;
+    }
+
+    async function promptEndSessionAndSubmit() {
       if (!activeProctorCertId) return;
 
-      const newPercent = prompt('Enter your updated certification progress percentage (0-100):', '100');
+      const newPercent = prompt('Enter your completed progress percentage for this attempt (0-100):', '100');
       if (newPercent === null) return;
 
-      const screenshotUrl = prompt('Paste your proctor session screenshot URL (Google Drive, Imgur, etc.):');
-      if (!screenshotUrl) return;
+      const screenshotUrl = prompt('📸 SCREENSHOT REQUIRED: Paste your attempt proof screenshot URL (Google Drive, Imgur, etc.):');
+      if (!screenshotUrl) {
+        alert('Screenshot proof is required to submit this attempt!');
+        return;
+      }
 
       const clampedPercent = Math.max(0, Math.min(100, parseInt(newPercent, 10) || 0));
       const certIdToClose = activeProctorCertId;
@@ -394,22 +452,39 @@
         await document.exitFullscreen().catch(() => {});
       }
 
+      // Fetch current attempts count to increment
+      const { data: currentCert } = await supabaseClient
+        .from('certifications')
+        .select('attempts')
+        .eq('id', certIdToClose)
+        .single();
+
+      const newAttemptsCount = (currentCert?.attempts || 0) + 1;
+      const newStatus = clampedPercent === 100 ? 'pending_approval' : 'in_progress';
+
       await supabaseClient
         .from('certifications')
         .update({ 
           is_proctored_live: false,
           progress_percent: clampedPercent,
           proof_url: screenshotUrl.trim(),
-          status: 'pending_approval'
+          attempts: newAttemptsCount,
+          status: newStatus
         })
         .eq('id', certIdToClose);
 
-      alert('Proctor session ended, progress updated, and screenshot proof submitted!');
+      alert(`Attempt #${newAttemptsCount} submitted successfully with screenshot proof!`);
       await loadStudentCerts();
     }
 
     async function recordProctorViolation() {
       if (!activeProctorCertId) return;
+      
+      if (ignoreNextVisibilityChange) {
+        ignoreNextVisibilityChange = false;
+        return;
+      }
+
       proctorViolations++;
       document.getElementById('proctor-violations-count').textContent = proctorViolations;
       document.getElementById('violation-alert').classList.remove('hidden');
@@ -601,7 +676,9 @@
         status: status,
         target_date: targetDate,
         proof_url: proofUrl,
-        verification_code: code
+        verification_code: code,
+        attempts: 0,
+        tab_violations: 0
       }]);
 
       if (error) {
@@ -620,19 +697,6 @@
       const { error } = await supabaseClient
         .from('certifications')
         .update({ progress_percent: clamped, status: newStatus })
-        .eq('id', certId);
-
-      if (error) alert(error.message);
-      else await loadStudentCerts();
-    }
-
-    async function updateProofUrl(certId) {
-      const url = prompt('Paste your Course, Exam, or Certificate Proof URL:');
-      if (!url) return;
-
-      const { error } = await supabaseClient
-        .from('certifications')
-        .update({ proof_url: url.trim() })
         .eq('id', certId);
 
       if (error) alert(error.message);
@@ -668,6 +732,7 @@
         const statusLabel = cert.status.replace('_', ' ').toUpperCase();
         const safeTitle = cert.cert_title.replace(/'/g, "\\'");
         const safeProof = cert.proof_url ? cert.proof_url.replace(/'/g, "\\'") : '';
+        const attempts = cert.attempts || 0;
 
         return `
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
@@ -678,9 +743,9 @@
               </div>
               <div class="flex items-center gap-2">
                 ${cert.status !== 'verified' ? `
-                  <button onclick="startProctorSession('${cert.id}', '${safeTitle}', ${cert.progress_percent}, ${cert.tab_violations || 0}, '${safeProof}')"
-                    class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold rounded-lg transition">
-                    Enable Proctor Mode
+                  <button onclick="promptProctorSession('${cert.id}', '${safeTitle}', ${cert.progress_percent}, ${cert.tab_violations || 0}, '${safeProof}', ${attempts})"
+                    class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold rounded-lg transition shadow">
+                    Enable Proctor Mode (Attempt #${attempts + 1})
                   </button>
                 ` : ''}
                 <span class="px-2.5 py-1 text-[10px] font-bold rounded-full border ${badgeColors[cert.status] || ''}">
@@ -692,7 +757,7 @@
             <!-- Progress Bar -->
             <div>
               <div class="flex justify-between text-xs mb-1">
-                <span class="text-slate-400">Completion Progress</span>
+                <span class="text-slate-400">Completion Progress (Attempts logged: <strong>${attempts}</strong>)</span>
                 <span class="font-semibold text-emerald-400">${cert.progress_percent}%</span>
               </div>
               <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
@@ -714,8 +779,8 @@
 
               <div class="flex items-center gap-3">
                 ${cert.proof_url 
-                  ? `<a href="${cert.proof_url}" target="_blank" class="text-emerald-400 hover:underline font-medium">View Course/Proof Link ↗</a>` 
-                  : `<button onclick="updateProofUrl('${cert.id}')" class="text-blue-400 hover:underline font-medium">+ Add Course/Exam Link</button>`
+                  ? `<a href="${cert.proof_url}" target="_blank" class="text-emerald-400 hover:underline font-medium">View Attempt Proof ↗</a>` 
+                  : `<span class="text-slate-500">No proof uploaded</span>`
                 }
                 <span class="text-slate-500 font-mono text-[11px]">ID: ${cert.verification_code || 'N/A'}</span>
               </div>
@@ -756,20 +821,21 @@
             <p class="text-xs text-slate-400">${row.issuer}</p>
           </td>
           <td class="py-3.5 px-4 space-y-1">
+            <p class="text-xs font-semibold text-indigo-400">Total Attempts: ${row.attempts || 0}</p>
             ${row.is_proctored_live 
               ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold">
                    <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span> LIVE TAKING
                  </span>`
               : `<span class="text-xs text-slate-500">Offline</span>`
             }
-            <p class="text-xs text-slate-400">Tab Strikes: <strong class="${(row.tab_violations || 0) > 0 ? 'text-red-400' : 'text-slate-300'}">${row.tab_violations || 0}</strong></p>
           </td>
-          <td class="py-3.5 px-4">
+          <td class="py-3.5 px-4 space-y-1">
             <span class="font-bold text-emerald-400">${row.progress_percent}%</span>
+            <p class="text-xs text-slate-400">Strikes: <strong class="${(row.tab_violations || 0) > 0 ? 'text-red-400' : 'text-slate-300'}">${row.tab_violations || 0}</strong></p>
           </td>
           <td class="py-3.5 px-4">
             ${row.proof_url 
-              ? `<a href="${row.proof_url}" target="_blank" class="text-xs text-blue-400 hover:underline font-medium">Open Link ↗</a>` 
+              ? `<a href="${row.proof_url}" target="_blank" class="text-xs text-blue-400 hover:underline font-medium">View Proof ↗</a>` 
               : `<span class="text-xs text-slate-500">None</span>`}
           </td>
           <td class="py-3.5 px-4">
