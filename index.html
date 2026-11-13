@@ -120,14 +120,14 @@
           </p>
         </div>
         <div class="flex flex-wrap items-center justify-center gap-4">
-          <a id="proctor-launch-btn" href="#" target="_blank" onclick="exemptNextViolation()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">
+          <a id="proctor-launch-btn" href="#" target="_blank" onclick="exemptPortalClick()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">
             Open Certification Portal ↗
           </a>
         </div>
       </div>
     </div>
 
-    <!-- Bottom Controls (No Re-lock button) -->
+    <!-- Bottom Controls -->
     <div class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-end gap-4 border-t border-slate-800 pt-4">
       <button onclick="endProctorSession()" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white text-sm font-bold rounded-lg transition shadow-lg shadow-red-600/20">
         End Proctor Session & Return to Dashboard
@@ -345,10 +345,10 @@
 
     let pendingCertData = null;
     let activeProctorCertId = null;
-    let proctorViolations = -1; // Starts at -1 offset so initial page load resolves to 0
+    let proctorViolations = -1; // Starts at -1 offset so initial load resolves to 0
     let proctorSeconds = 0;
     let proctorTimerInterval = null;
-    let ignoreNextVisibilityChange = false;
+    let ignoreViolationsUntil = 0;
 
     window.addEventListener('DOMContentLoaded', async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
@@ -421,8 +421,9 @@
       }, 1000);
     }
 
-    function exemptNextViolation() {
-      ignoreNextVisibilityChange = true;
+    function exemptPortalClick() {
+      // Ignore any focus loss / visibility changes for the next 3 seconds when opening the authorized portal link
+      ignoreViolationsUntil = Date.now() + 3000;
     }
 
     async function endProctorSession() {
@@ -483,11 +484,26 @@
       }
     }
 
+    async function deleteCertification(certId) {
+      if (!confirm('Are you sure you want to delete this certification from your tracker?')) return;
+
+      const { error } = await supabaseClient
+        .from('certifications')
+        .delete()
+        .eq('id', certId);
+
+      if (error) {
+        alert('Error deleting certification: ' + error.message);
+      } else {
+        await loadStudentCerts();
+      }
+    }
+
     async function recordProctorViolation() {
       if (!activeProctorCertId) return;
       
-      if (ignoreNextVisibilityChange) {
-        ignoreNextVisibilityChange = false;
+      // If within the exemption time window after clicking the portal link, skip counting
+      if (Date.now() < ignoreViolationsUntil) {
         return;
       }
 
@@ -873,12 +889,15 @@
                 <span class="text-slate-400">Strikes: <strong class="${violations > 0 ? 'text-red-400' : 'text-slate-300'}">${violations}</strong></span>
               </div>
 
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3 flex-wrap">
                 <button onclick="submitScreenshot('${cert.id}')" class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/30 rounded font-semibold transition">
                   ${cert.proof_url ? 'Update Screenshot Proof ↗' : 'Submit Screenshot 📸'}
                 </button>
                 <button onclick="openChatModal('${cert.id}', '${safeTitle}')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded font-semibold transition">
                   Concerns / Chat 💬
+                </button>
+                <button onclick="deleteCertification('${cert.id}')" class="px-2.5 py-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 rounded font-semibold transition">
+                  Delete 🗑️
                 </button>
                 <span class="text-slate-500 font-mono text-[11px]">ID: ${cert.verification_code || 'N/A'}</span>
               </div>
